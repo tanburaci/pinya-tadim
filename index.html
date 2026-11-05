@@ -180,6 +180,8 @@ footer{margin-top:28px;font-size:.8rem;color:var(--muted);text-align:center}
 <script>
 /* Yanıtların gideceği e-posta adresi */
 var FORM_EMAIL='urlapinya@gmail.com';
+/* Web3Forms anahtarı (urlapinya@gmail.com için). Boşsa FormSubmit kullanılır. */
+var WEB3_KEY='';
 (function(){
   var form=document.getElementById('tadim'),err=document.getElementById('err'),btn=document.getElementById('gonder');
   form.addEventListener('submit',function(e){
@@ -199,7 +201,10 @@ var FORM_EMAIL='urlapinya@gmail.com';
     var done=function(){form.hidden=true;document.getElementById('thanks').hidden=false;window.scrollTo(0,0);};
     var fail=function(m){err.textContent=m;btn.disabled=false;btn.textContent='Katılımımı gönder';};
     if(/claude/.test(location.hostname)){fail('Bu bir önizleme. Form, yayındaki adresinde yanıtları e-postanıza gönderir.');return;}
-    fetch('https://formsubmit.co/ajax/'+FORM_EMAIL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+    var url='https://formsubmit.co/ajax/'+FORM_EMAIL;
+    if(WEB3_KEY){url='https://api.web3forms.com/submit';data.access_key=WEB3_KEY;data.subject=data._subject;data.from_name='Pinya Tadım Formu';data.botcheck=data._honey||'';
+      if(data.eposta)data.replyto=data.eposta;delete data._subject;delete data._template;delete data._captcha;delete data._honey;}
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
       .then(function(r){return r.json();}).then(function(j){
         if(String(j.success)==='true'){done();return;}
         var m=String(j.message||'');
