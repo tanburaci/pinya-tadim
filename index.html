@@ -200,7 +200,11 @@ var FORM_EMAIL='urlapinya@gmail.com';
     var fail=function(m){err.textContent=m;btn.disabled=false;btn.textContent='Katılımımı gönder';};
     if(/claude/.test(location.hostname)){fail('Bu bir önizleme. Form, yayındaki adresinde yanıtları e-postanıza gönderir.');return;}
     fetch('https://formsubmit.co/ajax/'+FORM_EMAIL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
-      .then(function(r){return r.json();}).then(function(j){if(String(j.success)!=='true')throw 0;done();})
+      .then(function(r){return r.json();}).then(function(j){
+        if(String(j.success)==='true'){done();return;}
+        var m=String(j.message||'');
+        if(/activat/i.test(m)){fail('Form henüz etkinleştirilmemiş. urlapinya@gmail.com adresine gelen "Activate Form" mailindeki bağlantıya tıklandıktan sonra tekrar gönderin.');return;}
+        fail('Gönderilemedi'+(m?' ('+m+')':'')+'. Biraz sonra tekrar deneyin.');})
       .catch(function(){fail('Gönderilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.');});
   });
 })();
